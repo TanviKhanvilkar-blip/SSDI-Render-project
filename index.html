@@ -6,63 +6,72 @@
     <title>Student Portal</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f4f7f6; }
-        .main-card { border-radius: 15px; border: none; margin-top: 30px; }
-        .nav-tabs .nav-link.active { font-weight: bold; color: #0d6efd; border-bottom: 3px solid #0d6efd; }
+        body { background-color: #f8f9fa; font-family: sans-serif; }
+        .container { max-width: 900px; }
+        .card { border-radius: 12px; border: none; }
+        .nav-tabs .nav-link.active { border-bottom: 3px solid #0d6efd; color: #0d6efd; font-weight: bold; }
     </style>
 </head>
 <body>
+
 <div class="container py-5">
-    <div class="card shadow main-card">
-        <div class="card-header bg-white pt-4 px-4 border-0 text-center">
-            <h2 class="mb-4">Student Management System</h2>
-            <ul class="nav nav-tabs border-0 justify-content-center" id="portalTabs" role="tablist">
+    <div class="card shadow">
+        <div class="card-header bg-white pt-4 border-0 text-center">
+            <h2 class="mb-4">Student Management</h2>
+            <ul class="nav nav-tabs justify-content-center" id="myTab" role="tablist">
                 <li class="nav-item">
-                    <button class="nav-link {{ 'active' if active_tab == 'entry' }}" data-bs-toggle="tab" data-bs-target="#entry" type="button">Data Entry</button>
+                    <button class="nav-link {{ 'active' if active_tab == 'entry' }}" data-bs-toggle="tab" data-bs-target="#entry">Data Entry</button>
                 </li>
                 <li class="nav-item">
-                    <button class="nav-link {{ 'active' if active_tab == 'view' }}" data-bs-toggle="tab" data-bs-target="#view" type="button">View Records</button>
+                    <button class="nav-link {{ 'active' if active_tab == 'view' }}" data-bs-toggle="tab" data-bs-target="#view">View Records</button>
                 </li>
             </ul>
         </div>
+        
         <div class="card-body p-4">
             <div class="tab-content">
                 <div class="tab-pane fade {{ 'show active' if active_tab == 'entry' }}" id="entry">
                     <div class="row justify-content-center">
-                        <div class="col-md-6">
+                        <div class="col-md-7">
                             <form action="/" method="POST">
                                 <input type="hidden" name="submit_student" value="1">
-                                <div class="mb-3"><label class="form-label">Name</label><input type="text" name="name" class="form-control" required></div>
+                                <div class="mb-3"><label class="form-label">Full Name</label><input type="text" name="name" class="form-control" required></div>
                                 <div class="mb-3"><label class="form-label">SAP ID</label><input type="text" name="sapid" class="form-control" required></div>
                                 <div class="row">
                                     <div class="col-6 mb-3"><label class="form-label">Age</label><input type="number" name="age" class="form-control" required></div>
                                     <div class="col-6 mb-3"><label class="form-label">Marks</label><input type="number" step="0.01" name="marks" class="form-control" required></div>
                                 </div>
-                                <button type="submit" class="btn btn-primary w-100">Submit</button>
+                                <button type="submit" class="btn btn-primary w-100">Add Student</button>
                             </form>
                         </div>
                     </div>
                 </div>
+
                 <div class="tab-pane fade {{ 'show active' if active_tab == 'view' }}" id="view">
                     <form method="GET" action="/" class="row g-2 mb-4 p-3 bg-light rounded">
                         <input type="hidden" name="active_tab" value="view">
-                        <div class="col-md-4"><input type="text" name="name" class="form-control" placeholder="Search Name"></div>
-                        <div class="col-md-4"><input type="text" name="sapid" class="form-control" placeholder="Search SAPID"></div>
-                        <div class="col-md-4"><button type="submit" class="btn btn-primary w-100">Filter</button></div>
+                        <div class="col-md-5"><input type="text" name="name" class="form-control" placeholder="Search by Name"></div>
+                        <div class="col-md-5"><input type="text" name="sapid" class="form-control" placeholder="Search by SAPID"></div>
+                        <div class="col-md-2"><button type="submit" class="btn btn-dark w-100">Filter</button></div>
                     </form>
-                    <table class="table table-hover">
-                        <thead class="table-dark"><tr><th>Name</th><th>SAP ID</th><th>Age</th><th>Marks</th></tr></thead>
-                        <tbody>
-                            {% for student in students %}
-                            <tr><td>{{ student.name }}</td><td><code>{{ student.sapid }}</code></td><td>{{ student.age }}</td><td>{{ student.marks }}</td></tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead><tr><th>Name</th><th>SAP ID</th><th>Age</th><th>Marks</th></tr></thead>
+                            <tbody>
+                                {% for s in students %}
+                                <tr><td>{{ s.name }}</td><td><code>{{ s.sapid }}</code></td><td>{{ s.age }}</td><td>{{ s.marks }}</td></tr>
+                                {% else %}
+                                <tr><td colspan="4" class="text-center">No data found.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
