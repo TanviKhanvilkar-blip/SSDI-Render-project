@@ -2,18 +2,19 @@ import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
-app = Flask(__name__)
-app.secret_key = os.environ.get("SECRET_KEY", "dev_secret_key_123")
+# template_folder='.' allows Flask to find index.html in the root directory
+app = Flask(__name__, template_folder='.')
+app.secret_key = "ssdi_secret_2026"
 
-# DATABASE CONFIGURATION
-# Render provides the DATABASE_URL environment variable automatically.
-# We keep your hardcoded URL as a backup for local testing.
-DEFAULT_DB = 'postgresql://ssdi_student_database_user:XVsK3dNaRlQmIKR78HukE87lPkbJfj5J@dpg-d6l382paae7s73fuim90-a.singapore-postgres.render.com/ssdi_student_database'
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', DEFAULT_DB)
+# Database Configuration
+# Uses Render's DATABASE_URL if available, otherwise your specific Render URL
+RENDER_URL = 'postgresql://ssdi_student_database_user:XVsK3dNaRlQmIKR78HukE87lPkbJfj5J@dpg-d6l382paae7s73fuim90-a.singapore-postgres.render.com/ssdi_student_database'
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', RENDER_URL)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
 
+# Database Model
 class Student(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
@@ -26,6 +27,7 @@ with app.app_context():
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    # 1. Handle Form Submission
     if request.method == 'POST' and 'submit_student' in request.form:
         try:
             new_student = Student(
@@ -39,19 +41,21 @@ def index():
             return redirect(url_for('index', active_tab='view'))
         except Exception as e:
             db.session.rollback()
-            return f"Error: {e}"
+            return f"Error saving to database: {e}"
 
-    # Filtering Logic
+    # 2. Handle Filtering Logic
     query = Student.query
-    name_filter = request.args.get('name')
-    sapid_filter = request.args.get('sapid')
-    if name_filter:
-        query = query.filter(Student.name.ilike(f'%{name_filter}%'))
-    if sapid_filter:
-        query = query.filter(Student.sapid.contains(sapid_filter))
+    name_f = request.args.get('name')
+    sap_f = request.args.get('sapid')
     
+    if name_f:
+        query = query.filter(Student.name.ilike(f'%{name_f}%'))
+    if sap_f:
+        query = query.filter(Student.sapid.contains(sap_f))
+
     students = query.all()
     active_tab = request.args.get('active_tab', 'entry')
+    
     return render_template('index.html', students=students, active_tab=active_tab)
 
 if __name__ == '__main__':
